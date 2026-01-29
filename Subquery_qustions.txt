@@ -1,0 +1,110 @@
+
+Q1) employee : 										Employee Details 
+
+Id    		Name 		JOb 						Eid     sal
+1           Amit         HR							1           60000
+2           Ravi         HR							2           40000
+3           Neha         DEV						3           70000
+4           Kiran        HR							4           80000
+5           Anil         DEV						5           30000
+
+Get the employee details who have more salary than average salary and 
+job title is hr .
+
+1)select e.id , e.name , e.job , ed.sal 
+from emp as e 
+inner join employee Details as ed on e.id=ed.eid 
+where ed.salary > ( select avg(Salary) from employee details ) and e.job = hr 
+
+
+2)select e.id , e.name , e.job , a.salary 
+from emp1 as e
+inner join ( select e1.eid , e1.salary , ( select avg(salary) from employee_details) as avg_sal
+			from employee_details   as e1 ) a on e.id=a.eid
+where a.salary > a.avg_sal and e.job = 'hr';
+
+
+
+3)select b.id , b.name , b.job , b.salary from (
+select e.id , e.name , e.job , a.salary , ( select avg(salary) from employee_details) as avg_sal
+from emp1 as e 
+inner join employee_details as a on e.id=a.eid
+) b
+where b.salary > b.avg_sal and b.job='hr'
+
+
+4)
+
+select e.id , e.name , e.job , ed.salary 
+from emp1 as e 
+join employee_details as ed on e.id= ed.eid 
+join ( select avg (salary) as avg_salary
+	   from employee_details) as avg_sal on ed.salary > avg_sal.avg_salary
+where e.job = 'hr'
+
+5 ) 
+
+select e.id , e.name , e.job , ed.salary
+from emp1 as e 
+join employee_details as ed on e.id = ed.eid 
+cross join employee_details as s
+group by e.id , e.name , e.job , ed.salary
+having ed.salary > avg(s.salary) and e.job = 'hr'
+
+Q)2 :
+
+find the employee who earn more than the avarage salary of hr employee ?
+
+projecto - e.id , e.name , e.job , e.salary 
+selection - salary > avg (salary ) of hr emp 
+join - employee , employee_details 
+
+select e.id , e.name , e.job , ed.salary
+from emp1 as e 
+inner join employee_details as ed on e.id=ed.eid 
+where ed.salary > ( select avg(ed.salary)
+					from employee_details as ed
+					inner join emp1 as e1 on e1.id = ed.eid 
+					where e1.job = 'hr')
+					
+					
+Q)3 : 
+
+suppose , 
+
+employee 					employee_details		job
+
+id 		name 	job_id 		eid       salary   		jobid        Name 
+
+
+get the employee details who is work as hr and his getting 1000 rupees salary 
+
+1)
+select e.id , e.name , e.job_id , j.Name 
+from employee as e 
+inner join job as j on e.job_id = j.jobid 
+inner join employee_details on e.id = ed.eid 
+where j.Name = 'hr' and ed.Salary = 1000;
+
+2) select e.id , e.name , e.job_id 
+   from employee as e 
+   inner join employee_details as ed on e.id = ed.eid
+   where  e.job_id  in ( select job_id from job 
+						where name = 'hr')  and ed.salary = 1000
+	
+   
+3) select e.id , e.name , e,job_id , a.job_name , b.salary
+	from employee as e 
+	inner join ( select jobid , jobname 
+				from job 
+				where job name = "hr") a on e.jobid = a.job_id 
+	inner join ( select id , salary 
+				from employee_details
+				where salary = 1000 ) b on e.id = b.eid 
+4) select e.id , e.name , e.job_id  , b.salary
+   from employee as e 
+   inner join ( select id , salary 
+				from employee_details
+				where salary = 1000) b on e.id = b.id 
+   where  e.job_id  in ( select job_id from job 
+						where name = 'hr')  
