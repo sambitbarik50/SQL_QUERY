@@ -1,0 +1,363 @@
+Q1)emp:table
+id  name    depid 	     	
+1	Ravi	10
+1	Ravi	20			
+2	Sita	10
+3	Aman	30
+4	Rahul	20
+4	Rahul	30	
+
+dep:table
+id   name 
+10	HR
+20	IT
+30	Finance	
+# get employy name who are working more than one department 
+select e.id e.name 
+from emp as 
+group by e.id , e.name 
+having count(distinct e.depid) > 1 
+
+Step 1 : From Clause Execut , it Check Emp table Exist or not ,
+id  name    depid 				       	
+1	Ravi	10
+1	Ravi	20			
+2	Sita	10
+3	Aman	30
+4	Rahul	20
+4	Rahul	30
+
+step 2 : Group the record  
+e.id , e.name   e.id  e.name 	e.id  e.name  e.id  e.name	
+1      ravi	10 	2     sita		3  aman       4    rahul 20
+1	   ravi 20								  4    rahul 30	 
+
+step 3 : having count (distict e.depid) > 1 
+e.id , e.name   e.id  e.name 	e.id  e.name  e.id  e.name	
+1      ravi	10 	2     sita		3  aman       4    rahul 20
+1	   ravi 20								  4    rahul 30	 
+
+count (2)     		count(1) 	1 				2 
+
+step 4 : 
+
+e.id  e.name 
+1  		ravi
+4 		rahul
+
+
+Q)2 - Get the emp details who are working in sales department and salary is more than 50000
+
+emp table :							department:
+
+empid  name  salry  depid 			depid    name    
+
+1     sambit  1000   10       		10		IT
+2     amit 	  6000	 20				20		sales
+3	  bikash  7000   20             30      hr 
+4     raja    2000   30             
+5  	  sourabh 8000   10
+
+projection - e.empid , e.name , e.salary , e.depid 
+selection -  where d.name = sales and e.salary > 5000
+join -      on e.depid = d.depid    
+
+select   e.empid , e.name , e.salary , e.depid 
+from emp as e 
+inner join department on  e.depid = d.depid 
+where d.name = sales and e.salary > 5000
+
+Execution Process : 
+step-1 : from clause and inner join  execute and check the table is exist or not , here tabl is exist 
+on  e.depid = d.depid :
+empid  name  salry  depid 			depid    name    
+
+1     sambit  1000   10       		10		IT
+2     amit 	  6000	 20				20		sales
+3	  bikash  7000   20             20      sales 
+4     raja    2000   30             30		hr
+5  	  sourabh 8000   10				10		IT
+step-2: where clause execute and check d.name = sales and e.salary > 5000
+empid  name  salry  depid 			depid    name  
+2     amit 	  6000	 20				20		sales
+3	  bikash  7000   20             20      sales 
+step-3: after that select clause execute and project e.empid , e.name , e.salary , e.depid 
+
+e.empid   e.name   e.salary   e.depid
+2			amit	6000		20
+3			bikash 	7000		20
+
+Q)2 : Get the department name wise total invest ment
+
+emp table :							department:
+
+empid  name  salry  depid 			depid    name    
+
+1     sambit  1000   10       		10		IT
+2     amit 	  6000	 20				20		sales
+3	  bikash  7000   20             30      hr 
+4     raja    2000   30             
+5  	  sourabh 8000   10
+
+projectio -d.dname , sum(e.salary) 
+selection -
+join -     on e.depid = d.depid
+
+select d.name , sum(e.salary) as Total_investment 
+from employe
+inner join department on e.depid = d.depid
+group by d.name
+
+Execution Process : 
+
+step-1 : first From clause will wxecut and join execute , from clause check the table 
+exist or not in the data dictionary then join on e.depid = d.depid 
+
+empid  name  salry  depid 			depid    name    
+
+1     sambit  1000   10       		10		IT
+2     amit 	  6000	 20				20		sales
+3	  bikash  7000   20             20      sales 
+4     raja    2000   30             30		hr
+5  	  sourabh 8000   10				10		IT
+
+Step-2 : Group by execut : group the d.name 
+
+		d.dnme (IT)  			Sales 					  hr 
+	
+1     sambit  1000   10		2     amit 	  6000	 20	  4     raja    2000   30             30		hr
+5  	  sourabh 8000   10		3	  bikash  7000   20   
+
+Step-3  : 9000  					13000					2000 
+
+step - : select clause execut 
+ d.dname 		Total_investment
+ IT				9000
+ Sales			13000
+ hr				2000
+ 
+ 
+Q)3 :  get the employee details who are getting salary more than 200 and less than 5000 
+
+projection - all coiumn in employee table 
+seleccction - where salary between 2000 and 5000
+
+select * from employee
+where salary between 2000 and 5000
+
+Q)4 : Get the depart ment wise max salary whose max salary is greater than 10000
+
+select d. name  , max (e.salary) as max salary
+from employee
+inner join department as d on e.depid = d.depid
+group d.name 
+having max(e.salary) > 10000
+Q)5 - Get the employee details in which depart ment number of employee is  more than 5 
+
+select * from 
+employe 
+where depid in (
+select depid
+from employee
+group depid
+having count(empid) > 5 ) 
+
+Q) Get year wise total invest ment in each department where 
+employee joind after jan 2013 and total invest ment > 10000
+
+table : 
+
+id 			name 		salary		depid		joinddate
+1			amit 		5000		10			2012-12-20
+2			raja		6000 		10 			2014
+3 			smruti		7000		10			2014
+4			jiban		8000		20			2015
+5			naria		15000		10			2015
+6			bikash		22000		30			2016
+
+projection - dept no , total investment 
+selection - where joindatw = 2023 
+
+select  year(joining_Date) as joinin_year,
+		depid ,
+		sum(salary) as total invest ment 
+from emp
+where join_date > '2013-01-01'
+group by year(joinddate) , depid
+having sum(salary) > 10000
+ 
+
+Q) Employee																department
+
+eid			ename 			depno			sal 		mgr			depno			d.name				loc
+1			amit 			10 			1000			nill		10				hr					hyd
+2			raja			10			2000			1			20				sales				chen
+3			smruti			20			3000			1			30				mark				od
+4			jibana			10			3500			3			40				finance				ban
+5			debaasis		20			4000			4
+6			rayash			30			5000			5
+
+
+-- Get the emp name with his manager name 
+
+select e.ename as employee_name , m.mgr as manager_name   
+from emp as e
+left join emp as m on e.mgr = m.eid 
+
+Execution Process : 
+
+step 1 : from clause and left join execute 
+
+Q) Employee: From clause Execute 														
+
+eid			ename 			depno			sal 		mgr			
+1			amit 			10 			1000			nill		
+2			raja			10			2000			1			
+3			smruti			20			3000			1			
+4			jibana			10			3500			3			
+5			debaasis		20			4000			4
+6			rayash			30			5000			5
+
+Left join on e.mgr = m.eid 
+emp																			mgr
+eid			ename 			depno			sal 		mgr		eid			ename 			depno			sal 		mgr			
+1			amit 			10 			1000			null	1			amit 			10 			1000			nill	
+2			raja			10			2000			1		2			raja			10			2000			1	
+3			smruti			20			3000			1		3			smruti			20			3000			1	
+4			jibana			10			3500			3		4			jibana			10			3500			3				
+5			debaasis		20			4000			4		5			debaasis		20			4000			4
+6			rayash			30			5000			5		6			rayash			30			5000			5
+
+emp																			mgr
+eid			ename 			depno			sal 		mgr		eid			ename 			depno		sal 		mgr			
+1			amit 			10 			1000			null	null		null			null 		null		null	
+2			raja			10			2000			1		1			amit			10			1000	    null					
+3			smruti			20			3000			1		1			amit			10			1000	    null				
+4			jibana			10			3500			3		3         smruti			20			3000			1				
+5			debaasis		20			4000			4		4			jibana			10			3500			3		
+6			rayash			30			5000			5		5			debaasis		20			4000			4			
+
+Select clause execute : 
+
+ename 				manager name 
+amit 					null
+raja					amit
+smruti					ami
+jibana					smruti
+debaasis				jibana
+rayash					debaasis	
+
+Q) Get the employee details who are getting more salary from his her manager 
+
+select e.empid , e.name , e.depno , e.sal , mgr 
+from emp as e 
+left join emp as m on e.mgr = m.eid 
+where e.salry > m.salary 
+
+Execution Process : 
+
+Step 1 : From clause execute and chek the table exist or not 
+eid			ename 			depno			sal 		mgr			
+1			amit 			10 			1000			nill		
+2			raja			10			2000			1			
+3			smruti			20			3000			1			
+4			jibana			10			3500			3			
+5			debaasis		20			4000			4
+6			rayash			30			5000			5
+
+step-2 : join execute on e.mgr = m.eid 
+
+emp																			mgr
+eid			ename 			depno			sal 		mgr		eid			ename 			depno			sal 		mgr			
+1			amit 			10 			1000			null	1			amit 			10 			1000			nill	
+2			raja			10			2000			1		2			raja			10			2000			1	
+3			smruti			20			3000			1		3			smruti			20			3000			1	
+4			jibana			10			3500			3		4			jibana			10			3500			3				
+5			debaasis		20			4000			4		5			debaasis		20			4000			4
+6			rayash			30			5000			5		6			rayash			30			5000			5
+
+emp																			mgr
+eid			ename 			depno			sal 		mgr		eid			ename 			depno		sal 		mgr			
+1			amit 			10 			1000			null	null		null			null 		null		null	
+2			raja			10			2000			1		1			amit			10			1000	    null					
+3			smruti			20			3000			1		1			amit			10			1000	    null				
+4			jibana			10			3500			3		3         smruti			20			3000			1				
+5			debaasis		20			4000			4		4			jibana			10			3500			3		
+6			rayash			30			5000			5		5			debaasis		20			4000			4			
+
+Step - 3 : where e.salry > m.salary 
+2			raja			10			2000			1		1			amit			10			1000	    null
+3			smruti			20			3000			1		1			amit			10			1000	    null
+4			jibana			10			3500			3		3         smruti			20			3000			1
+5			debaasis		20			4000			4		4			jibana			10			3500			3
+6			rayash			30			5000			5		5			debaasis		20			4000			4			
+
+step 4 : Select clause execute : 
+
+
+e.empid 		 e.name 		e.depno 		e.sal 			 mgr 
+2			raja			10			2000			1
+3			smruti			20			3000			1		1
+4			jibana			10			3500			3		3 
+5			debaasis		20			4000			4		4
+6			rayash			30			5000			5		5
+
+Q) Get the employee details whose manager is handling /
+managing more than 5 employee .
+
+projection  - e.empid , e.empname e.depno , e.sal , e.mgr 
+selection - having count (eid) > 5 
+join - 
+
+select e.empid , e.empname e.depno , e.sal , e.mgr 
+from emp as e
+inner join (
+
+select mgr 
+from emp
+group by mgr 
+having count(e.empid) > 2 
+) a on e.mgr=a.mgr '; 
+
+
+Q ) find employees whose salary is greater than there average salary of theire department 
+
+using : corelated subquery : 
+select e.ename , e.salary , e.deptno 
+from emp as e
+where salary > ( select avg(e2.salary) from emp as e2 where E2.department=e1.department) 
+
+Using join : 
+Select e.ename , e.salary , e.deptno
+from emp as e 
+inner join ( select depno , avg(salary) as avg_salary
+			 from emp 
+			 group by depno) e2  on e.deptno = e2.depno
+where e.salary > e2.avg_salary 
+
+Q) Find employees whose salary is greater than at least one employee in dept 10
+
+select * 
+from emp 
+where salary > any ( select salry from emp where dep = 10 ) 
+
+Q) Find employees whose salary is greater than all employees in dept 10
+
+select * 
+from emp
+where salary > all ( select salry from emp where dep no = 10 ) 
+
+Q) Find employees whose salary is equal to any salary in dept 20
+
+select * 
+from emp
+where salary in  ( select salry from emp where dep no = 10 ) 
+
+Q) Find employees earning less than any employee in dept 30
+
+SELECT *
+FROM emp
+WHERE salary < ANY (
+    SELECT salary FROM emp WHERE deptno = 30
+);
+
