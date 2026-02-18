@@ -1,0 +1,343 @@
+Q)1 
+
+Find the Highest salary in each deaprt ment :
+
+1️⃣ Create Table Script
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50),
+    dept VARCHAR(50),
+    salary INT
+);
+
+✅ 2️⃣ Insert Sample Data
+INSERT INTO employees VALUES
+(1, 'Amit', 'IT', 80000),
+(2, 'Rahul', 'IT', 90000),
+(3, 'Neha', 'IT', 90000),
+(4, 'Priya', 'HR', 60000),
+(5, 'Suman', 'HR', 75000),
+(6, 'Ankit', 'HR', 75000),
+(7, 'Rohit', 'Finance', 85000),
+(8, 'Megha', 'Finance', 95000),
+(9, 'Karan', 'Finance', 92000);
+
+select * from 
+( select * , 
+row_number() over(partion by dept order by Salary Desc as rn
+from employee
+) h
+where rn = 1;
+
+Q)2: 2️⃣ Find 2nd Highest Salary in Each Department
+
+select * 
+from (
+select * , 
+dense_rank() over(partiton by dept order by salary) as dn
+from employee) as emp
+where dn = 2 ; 
+
+# i used dense_rank because if here duplicate salary exist then it not skipp the next rank number 
+
+Q)3 ; 4️⃣ Remove Duplicate Records (Very Common)
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY identity(1,1),
+    name VARCHAR(50),
+    email VARCHAR(100),
+    created_date datetime
+);
+
+INSERT INTO users (name, email, created_date)
+VALUES 
+('Amit', 'amit@gmail.com', '2024-01-01 10:00:00'),
+('Rahul', 'rahul@gmail.com', '2024-01-05 09:00:00'),
+('Amit Sharma', 'amit@gmail.com', '2024-02-01 11:00:00'),
+('Priya', 'priya@gmail.com', '2024-01-03 08:00:00'),
+('Rahul Verma', 'rahul@gmail.com', '2024-02-10 12:00:00');
+
+solve -1 : 
+Select * from users
+-- Find duplicate 
+;with dupicate as(
+select * , 
+ROW_NUMBER() over(partition by email order by created_date desc) as rn
+from users
+) -- remove duplicate
+, removr_dup as (
+select * from dupicate
+where rn > 1 )
+delete from removr_dup;
+
+slon-2 : 
+
+-- finding duplicate record 
+select *
+from (
+select * , 
+	ROW_NUMBER() over(partition by email order by created_date desc) as rn
+	from users
+) a
+where rn > 1 
+
+-- delete duplicate record 
+
+; with cte as (
+		select * , 
+				ROW_NUMBER() over(
+					partition by email 
+					order by created_ddate desc
+					) as n 
+		from users
+	) 
+	delete from cte 
+	where n > 1;
+	
+Q)4 - : 
+
+Find Month-over-Month Growth :Calculate difference between current month and previous month sales.
+
+CREATE TABLE sales_table (
+    month DATE,
+    sales DECIMAL(10,2)
+);
+
+INSERT INTO sales_table (month, sales)
+VALUES
+('2024-01-01', 10000),
+('2024-02-01', 12000),
+('2024-03-01', 9000),
+('2024-04-01', 15000),
+('2024-05-01', 18000);
+
+select * from sales_table 
+
+--- Month-over-Month Growth Query
+
+select month , sales,
+		sales - lag(sales) over(order by month) as growth
+from sales_table
+
+-- If They Ask for Percentage Growth
+
+SELECT 
+    month,
+    sales,
+    LAG(sales) OVER (ORDER BY month) AS prev_sales,
+    ((sales - LAG(sales) OVER (ORDER BY month)) * 100.0 
+      / LAG(sales) OVER (ORDER BY month)) AS growth_percentage
+FROM sales_table;
+
+---
+select month ,
+	   sales,
+	   prev_sales,
+	   ((sales-prev_sales) * 100 / prev_sales) as growth_percentage
+from (
+	select 
+			month,
+			sales,
+			lag(sales) over (order by month) as prev_sales
+	from sales_table
+) t;
+
+Q)5:
+Interviewer may say:
+
+We are analyzing revenue performance.
+The business wants to know how much revenue increased or decreased compared to previous month.
+Write a SQL query to calculate month-over-month revenue difference.
+
+If Table is daily Data: 
+
+order_date | amount |
+
+Then we must first aggregate monthly 
+
+with monthly_sales As (
+	select 
+		Dateformat(year(order_Date),month(order_date) ,1) as month,
+		sum (amount) as total_sales
+	from orders
+	group by year(order_date),month(order_date)
+)
+
+Select 
+		month,
+		total_sales,
+		total_sales - lag(total_sales) over (order by month) as growth
+from monthly_sales 
+interview_answare:
+I use DATEFROMPARTS to generate a proper date representing the first day of each month.
+This ensures correct grouping, sorting, and compatibility with window functions for time-based analysis.
+
+How To Explain This in Interview (Simple & Clear)
+--------------------------------------------------
+You can say:
+
+The table contains daily order data, so first I aggregate revenue at a monthly level using a CTE.
+I generate the first day of each month using DATEFROMPARTS so that I get a proper date column for correct sorting.
+Then I use the LAG window function to get the previous month's total sales.
+Finally, I subtract previous month sales from current month sales to calculate month-over-month growth.
+
+Q)6 : 
+
+Basic-version 
+
+Interviewer:
+
+We have an orders table containing customer_id and order_date.
+Write a SQL query to find the next order date for each customer.
+
+Table:
+
+| customer_id | order_date |
+
+
+select 
+		customer_id,
+		order_date,
+		lead(order_date) 
+		over(partition by customer_id order by order_date) as next_order
+from orders_basic
+
+CREATE TABLE orders_basic (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE
+);
+
+INSERT INTO orders_basic VALUES
+(1, 101, '2024-01-01'),
+(2, 101, '2024-01-10'),
+(3, 101, '2024-01-20'),
+(4, 102, '2024-02-01'),
+(5, 102, '2024-02-15');
+
+med-version : 
+------------
+
+Interviewer may say:
+
+We have an orders table with customer_id and order_date.
+For each order, calculate the number of days until the customer's next order.
+
+We want to analyze customer purchase frequency.
+For every order, calculate how many days it took for that customer to place the next order.
+
+CREATE TABLE orders_advanced (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    amount DECIMAL(10,2)
+);
+INSERT INTO orders_advanced VALUES
+(1, 201, '2024-01-01', 1000),
+(2, 201, '2024-01-05', 1500),
+(3, 201, '2024-01-25', 2000),
+(4, 202, '2024-02-01', 1200),
+(5, 202, '2024-02-20', 1800);
+
+
+select 
+		cudtomer_id,
+		order_date,
+		lead(order_date) 
+				over(partiton by customer_id order by order_date)
+		as next_order_date,
+		datediff(day,order_date,
+					lead(order_date) 
+				over(partiton by customer_id order by order_date)
+				) as order_date_count
+from orders_advanced
+		
+data engineer_level version: 
+
+DataEngineer_level:
+
+Identify customers who did not place another order within 30 days.
+
+CREATE TABLE orders_de (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    amount DECIMAL(10,2),
+    region VARCHAR(50)
+);
+
+INSERT INTO orders_de VALUES
+(1, 301, '2024-01-01', 1000, 'East'),
+(2, 301, '2024-01-20', 1500, 'East'),
+(3, 301, '2024-03-10', 2000, 'East'),
+
+(4, 302, '2024-02-01', 1200, 'West'),
+(5, 302, '2024-02-10', 1800, 'West'),
+
+(6, 303, '2024-01-05', 900, 'North');
+; with customer_orders as (
+
+	select 
+			customer_id,
+			order_date,
+			lead(order_date) over(
+			partition by customer_id
+			order by order_date
+			) as next_order
+		from orders_de
+	)
+select *
+from customer_orders
+where next_order is null or 
+	  DATEDIFF(day,order_date,next_order) > 30;
+	  
+
+Q) 7 
+Basic level:
+We have a salary table containing emp_id, month, and salary.
+Write a query to identify employees whose salary increased compared to the previous month.
+
+select  
+		emp_id ,
+		month,
+		salary,
+		case 
+			when salry > lag(salary) over(partion by emp_id
+						 order by month)
+				  then 'incresed'
+				  else 'not increased'
+				  End as ststus
+from salary_table
+ : 
+ 
+Data Engineer Level Version : 
+
+Build a dataset that flags salary increase, decrease, or no change for each employee across months.
+
+;with cte as (select emp_id,
+	   month,
+	   salary,
+	   lag(salary) over(partition by emp_id order by month) as prev_salary
+from salary_table
+)
+
+select * ,
+		salary - lag(salary) over(partition by emp_id order by month) as salary_diff,
+		case 
+		WHEN prev_salary IS NULL THEN 'First Record'
+		when salary > prev_salary then 'increase'
+		when  salary < prev_salary then 'decrease'
+		else 'not_change'
+		end as flag
+
+from cte;
+
+Q)8 :
+
+-- find top 3 salary overall
+select * from  (
+select * ,
+		ROW_NUMBER() over(order by salary desc ) as rn
+from salary_table) a
+
+where rn <= 3 
