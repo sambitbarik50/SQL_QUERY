@@ -341,3 +341,5 @@ select * ,
 from salary_table) a
 
 where rn <= 3 
+
+sambit kumar barik
