@@ -5,12 +5,13 @@ HR wants to check salary of one employee using Employee ID.
 Declare a variable
 Store employee salary into variable
 Print it
-Slution :
+Solution :
 declare @Salary int 
 select @salary = salary
 FROM employees
 where emp-id = 1 
 print @salary
+
 
  2 )If salary > 50000 → Bonus 10%
    Else → Bonus 5%
